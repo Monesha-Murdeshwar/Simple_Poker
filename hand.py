@@ -2,6 +2,7 @@ import tkinter
 import os
 from tkinter import *
 from PIL import ImageTk, Image
+import collections
 
 class Hand:
     def __init__(self, deck):
@@ -13,6 +14,77 @@ class Hand:
         for p in positions:
             self.cards[p] = deck.draw_a_card()
             self.images[p] = ImageTk.PhotoImage(Image.open(os.path.join(self.card_dir,self.cards[p]+'.png')).resize((50, 100), Image.ANTIALIAS))
+
+    def one_pair(self, hand_value):
+        occurences = collections.Counter(hand_value)
+        rank_pair=[]
+        for card in occurences:
+            if occurences[card] == 2:
+                rank_pair.append(card)
+        if len(rank_pair)!=1:
+            return False
+        return rank_pair+[val for val in hand_value if val not in rank_pair]
+    
+    def two_pair(self, hand_value):
+        occurences = collections.Counter(hand_value)
+        rank_pair=[]
+        for card in occurences:
+            if occurences[card] == 2:
+                rank_pair.append(card)
+        if len(rank_pair)!=2:
+            return False
+        rank_pair.sort()
+        return rank_pair+[val for val in hand_value if val not in rank_pair]
+
+    def three_kind(self,hand_value):
+        occurences = collections.Counter(hand_value)
+        rank_pair=[]
+        for card in occurences:
+            if occurences[card] == 3:
+                rank_pair.append(card)
+        if len(rank_pair)!=1:
+            return False
+        return rank_pair+[val for val in hand_value if val not in rank_pair]
+    
+    def four_kind(self,hand_value):
+        occurences = collections.Counter(hand_value)
+        rank_pair=[]
+        for card in occurences:
+            if occurences[card] == 4:
+                rank_pair.append(card)
+        if len(rank_pair)!=1:
+            return False
+        rank_pair.sort()
+        return rank_pair+[val for val in hand_value if val not in rank_pair]
+
+    def full_house(self,hand_value):
+        if self.three_kind(hand_value) and self.one_pair(hand_value):
+            return [self.three_kind(hand_value)[0],self.one_pair(hand_value)[0]]
+        else:
+            return False
+
+    def straight(self,hand_value):
+        hand_value.sort(reverse=True)
+        if hand_value==range(hand_value[0],hand_value[0]+5):
+            return [hand_value[0]+5]
+        else:
+            return False
+    
+    def flush(self,hand_value,hand_suit):
+        if hand_suit.count(hand_suit[0])==5:
+            return hand_value
+        else:
+            return False
+
+    def straight_flush(self,hand_value,hand_suit):
+        if self.straight(hand_value) and self.flush(hand_value,hand_suit):
+            return self.selfstraight(hand_value)
+        else:
+            return False
+    
+    def royal(self,hand_value,hand_suit):
+        if self.straight_flush(hand_value,hand_suit) and hand_value[0]==10:
+            return True
 
     def evaluation(self):
         values = {'A': 14, 'K': 13, 'Q': 12, 'J': 11, 'T': 10}
@@ -27,110 +99,23 @@ class Hand:
             hand_suit.append(self.cards[i][1])
         hand_value.sort(reverse=True)
 
-    
-    #     def onepair(hand):
-    #         vhand=valhand(hand)
-    #         pairvalue=[]
-    #         for i in vhand:
-    #             if vhand.count(i)==2:
-    #                 pairvalue.append(i)
-    #         if len(pairvalue)!=2:
-    #             return False
-    #         for i in pairvalue:
-    #             vhand.remove(i)
-    #         pairvalue=list(set(pairvalue))
-    #         pairvalue.sort()
-    #         return pairvalue+vhand
-    
-    #     def twopair(hand):
-    #         vhand=valhand(hand)
-    #         pairvalue=[]
-    #         for i in vhand:
-    #             if vhand.count(i)==2:
-    #                 pairvalue.append(i)
-    #         if len(pairvalue)!=4:
-    #             return False
-    #         for i in pairvalue:
-    #             vhand.remove(i)
-    #         pairvalue=list(set(pairvalue))
-    #         pairvalue.sort()
-    #         return pairvalue+vhand
-    
-    #     def threekind(hand):
-    #         vhand=valhand(hand)
-    #         pairvalue=[]
-    #         for i in vhand:
-    #             if vhand.count(i)==3:
-    #                 pairvalue.append(i)
-    #         if len(pairvalue)!=3:
-    #             return False
-    #         for i in pairvalue:
-    #             vhand.remove(i)
-    #         pairvalue=list(set(pairvalue))
-    #         return pairvalue+vhand
-        
-    #     def straight(hand):
-    #         vhand=valhand(hand)
-    #         vhand.reverse()
-    #         if vhand==range(vhand[0],vhand[0]+5):
-    #             return [vhand[0]+5]
-    #         else:
-    #             return False
-        
-    #     def flush(hand):
-    #         vhand=valhand(hand)
-    #         shand=suithand(hand)
-    #         if shand.count(shand[0])==5:
-    #             return vhand
-    #         else:
-    #             return False
-        
-    #     def fullhouse(hand):
-    #         if threekind(hand) and onepair(hand):
-    #             return [threekind(hand)[0],onepair(hand)[0]]
-    #         else:
-    #             return False
-        
-    #     def fourkind(hand):
-    #         vhand=valhand(hand)
-    #         pairvalue=[]
-    #         for i in vhand:
-    #             if vhand.count(i)==4:
-    #                 pairvalue.append(i)
-    #         if len(pairvalue)!=4:
-    #             return False
-    #         for i in pairvalue:
-    #             vhand.remove(i)
-    #         pairvalue=list(set(pairvalue))
-    #         return pairvalue+vhand
-        
-    #     def straightflush(hand):
-    #         if straight(hand) and flush(hand):
-    #             return straight(hand)
-    #         else:
-    #             return False
-        
-    #     def royal(hand):
-    #         if straightflush(hand) and valhand(hand)[0]==10:
-    #             return True
-    
-    #     if royal(self.cards):
-    #         return (10,10)
-    #     elif straightflush(self.cards):
-    #         return (9,straightflush(self.cards))
-    #     elif fourkind(self.cards):
-    #         return (8,fourkind(self.cards))
-    #     elif fullhouse(self.cards):
-    #         return (7,fullhouse(self.cards))
-    #     elif flush(self.cards):
-    #         return (6,flush(self.cards))
-    #     elif straight(self.cards):
-    #         return (5,straight(self.cards))
-    #     elif threekind(self.cards):
-    #         return (4,threekind(self.cards))
-    #     elif twopair(self.cards):
-    #         return (3,twopair(self.cards))
-    #     elif onepair(self.cards):
-    #         return (2,onepair(self.cards))
-    #     else:
-    #         return (1,valhand(self.cards))
+        if self.royal(hand_value,hand_suit):
+            return (10,10)
+        elif self.straight_flush(hand_value,hand_suit):
+            return (9,self.straight_flush(hand_value))
+        elif self.four_kind(hand_value):
+            return (8,self.four_kind(hand_value))
+        elif self.full_house(hand_value):
+            return (7,self.full_house(hand_value))
+        elif self.flush(hand_value,hand_suit):
+            return (6,self.flush(hand_value))
+        elif self.straight(hand_value):
+            return (5,self.straight(hand_value))
+        elif self.three_kind(hand_value):
+            return (4,self.three_kind(hand_value))
+        elif self.two_pair(hand_value):
+            return (3,self.two_pair(hand_value))
+        elif self.one_pair(hand_value):
+            return (2,self.one_pair(hand_value))
+        else:
+            return (1,hand_value)

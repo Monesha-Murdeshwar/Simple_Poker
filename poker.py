@@ -12,25 +12,34 @@ class Poker:
         self.card_dir = os.path.join('.','cards')
     
     def summary(self,score_human, score_AI):
-        hand_names = {1:'high card', 2:'one pair', 3:'two pair', 4:'three of a kind', 5:'a straight', 6:'a flush', 7:'a full house', 8:'four of a kind', 9:'a straight flush', 10:'a royal flush'}
-        result = "The AI has " + hand_names[score_AI[0]] + ", whereas the human has " + hand_names[score_human[0]] + ".\n"
+        hand_names = {1:'high card',
+                    2:'one pair', 
+                    3:'two pair', 
+                    4:'three of a kind', 
+                    5:'a straight', 
+                    6:'a flush', 
+                    7:'a full house', 
+                    8:'four of a kind', 
+                    9:'a straight flush', 
+                    10:'a royal flush'}
+
+        result = "AI : " + hand_names[score_AI[0]] + "\n You : " + hand_names[score_human[0]] + ".\n Winner : "
         if score_human[0] > score_AI[0]:
-            result += "Thus, the human wins."
+            result += "You"
         elif score_human[0] < score_AI[0]:
-            result += "Thus, the AI wins."
+            result += "AI."
         else:
-            tiebreaker_human = score_human[1]
-            tiebreaker_AI = score_AI[1]
-            while tiebreaker_human:
-                if tiebreaker_human[0] > tiebreaker_AI[0]:
-                    result += "However, the human ultimately has a stronger hand and therefore wins."
+            sorted_human = sorted(score_human[1], reverse=True)
+            sorted_AI =  sorted(score_AI[1], reverse=True)
+            i = 0
+            while i < len(sorted_human):
+                if sorted_human[i] > sorted_AI[i]:
+                    result += "You have HigherX. \n Hence winner: You"
                     break
-                elif tiebreaker_human[0] < tiebreaker_AI[0]:
-                    result += "However, the AI ultimately has a stronger hand and therefore wins."
+                elif sorted_human[i] < sorted_AI[i]:
+                    result += "AI has HigherX. \n Hence winner: AI"
                     break
-                else:
-                    tiebreaker_human.pop(0)
-                    tiebreaker_AI.pop(0)
+                i+=1
         return result
 
     def play(self, hand_human, hand_AI, deck, cardlabels_human, cardlabels_AI, states, announcer, play_button, reset_button):
@@ -44,7 +53,7 @@ class Poker:
         score_human = hand_human.evaluation()
         score_AI = hand_AI.evaluation()
 
-        if (score_human > score_AI):
+        if (score_human[0] > score_AI[0]):
             self.player_cash += 50
             self.ai_cash -=50
         else:
@@ -112,7 +121,7 @@ class Poker:
         announcer.config(text=reset_text)
 
         cardlabels_human = [tkinter.Label(master) for i in range(5)]
-        # cardlabels_AI = [tkinter.Label(master) for i in range(5)]
+        cardlabels_AI = [tkinter.Label(master) for i in range(5)]
         discard_states = []
         back = ImageTk.PhotoImage(Image.open(os.path.join(self.card_dir,'red_back.png')).resize((50, 100), Image.ANTIALIAS))
         
@@ -126,7 +135,7 @@ class Poker:
             chk.grid(row=3,column=i)
             discard_states.append(discard_card)
         
-        reset_button = tkinter.Button(master, text='PLAY AGAIN', command=lambda: self.resetGame(master, announcer, player_cash_label, cardlabels_AI))
+        reset_button = tkinter.Button(master, text='PLAY AGAIN', command=lambda: self.resetGame(master, announcer, player_cash_label, ai_cash_label, cardlabels_AI))
         reset_button.grid(row = 4, column = 1)
         self.disable(reset_button)
         play_button = tkinter.Button(master, text='DRAW', command=lambda: self.play(hand_human, hand_AI, deck, cardlabels_human, cardlabels_AI, discard_states, announcer, play_button, reset_button))
