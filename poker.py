@@ -44,9 +44,6 @@ class Poker:
         score_human = hand_human.evaluation()
         score_AI = hand_AI.evaluation()
 
-        # global player_cash
-        # global ai_cash
-        
         if (score_human > score_AI):
             self.player_cash += 50
             self.ai_cash -=50
@@ -66,9 +63,6 @@ class Poker:
         button.config(state=tkinter.ACTIVE)
     
     def mainGame(self):
-        # player_cash = 1000
-        # ai_cash = 1000
-
         master = tkinter.Tk()
         master.title('Simple Five-Card Draw')
         deck = Deck()
@@ -92,7 +86,7 @@ class Poker:
         
         for i in range(5):
             cardlabels_AI[i].grid(row=0, column=i)
-            cardlabels_AI[i].config(image=back)
+            # cardlabels_AI[i].config(image=back)
             cardlabels_human[i].grid(row=2, column=i)
             cardlabels_human[i].config(image=hand_human.images[i])
             discard_card = tkinter.IntVar()
@@ -100,7 +94,7 @@ class Poker:
             chk.grid(row=3,column=i)
             discard_states.append(discard_card)
         
-        reset_button = tkinter.Button(master, text='NEXT', command=lambda: self.resetGame(master, announcer, player_cash_label, ai_cash_label))
+        reset_button = tkinter.Button(master, text='PLAY AGAIN', command=lambda: self.resetGame(master, announcer, player_cash_label, ai_cash_label, cardlabels_AI))
         reset_button.grid(row = 4, column = 1)
         self.disable(reset_button)
 
@@ -109,7 +103,7 @@ class Poker:
 
         master.mainloop()
     
-    def resetGame(self, master, announcer, player_cash_label, ai_cash_label):
+    def resetGame(self, master, announcer, player_cash_label, ai_cash_label,cardlabels_AI):
         deck = Deck()
         hand_AI = Hand(deck)
         hand_human = Hand(deck)
@@ -118,7 +112,7 @@ class Poker:
         announcer.config(text=reset_text)
 
         cardlabels_human = [tkinter.Label(master) for i in range(5)]
-        cardlabels_AI = [tkinter.Label(master) for i in range(5)]
+        # cardlabels_AI = [tkinter.Label(master) for i in range(5)]
         discard_states = []
         back = ImageTk.PhotoImage(Image.open(os.path.join(self.card_dir,'red_back.png')).resize((50, 100), Image.ANTIALIAS))
         
@@ -132,9 +126,9 @@ class Poker:
             chk.grid(row=3,column=i)
             discard_states.append(discard_card)
         
-        reset_button = tkinter.Button(master, text='PLAY AGAIN', command=lambda: self.resetGame(master, announcer, player_cash_label, ai_cash_label))
+        reset_button = tkinter.Button(master, text='PLAY AGAIN', command=lambda: self.resetGame(master, announcer, player_cash_label, cardlabels_AI))
         reset_button.grid(row = 4, column = 1)
-
+        self.disable(reset_button)
         play_button = tkinter.Button(master, text='DRAW', command=lambda: self.play(hand_human, hand_AI, deck, cardlabels_human, cardlabels_AI, discard_states, announcer, play_button, reset_button))
         play_button.grid(row=4, column=0)
 
