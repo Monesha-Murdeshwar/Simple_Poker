@@ -86,7 +86,7 @@ class Hand:
         if self.straight_flush(hand_value,hand_suit) and hand_value[0]==10:
             return True
 
-    def evaluation(self):
+    def eval(self):
         values = {'A': 14, 'K': 13, 'Q': 12, 'J': 11, 'T': 10}
         hand_value=[]
         hand_suit = []
